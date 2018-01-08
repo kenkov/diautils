@@ -20,6 +20,12 @@ class TwitterExtractor:
         return self.extract(tweets)
 
     def extract(self, tweets):
+        """ツイートのリストから対話を抽出する
+
+        Args:
+            tweets (List[dict]): ツイートの辞書からなるリスト。
+                ツイートは古い順に並んでいる必要がある
+        """
         reply_dic = defaultdict(list)
 
         for tweet in reversed(tweets):
