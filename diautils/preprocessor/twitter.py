@@ -41,7 +41,7 @@ class Preprocessor:
         return _text
 
 
-class Twitter:
+class TwitterPreprocessor:
     def __init__(self):
         username = r'@[a-zA-Z0-9_]+'
         tag = r'#[a-zA-Z0-9_]+'
@@ -68,3 +68,6 @@ class Twitter:
         for func in funcs:
             _text = func(_text)
         return _text
+
+    def _subs(self, regex: "re obj", repl: str, text: str):
+        return regex.sub(repl, text)
