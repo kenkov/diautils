@@ -6,6 +6,7 @@
 
 
 import json
+import sys
 from collections import defaultdict
 
 
@@ -59,6 +60,10 @@ class TwitterExtractor:
         tweets = []
         with open(filename) as f:
             for tweet_str in f:
-                tweet = json.loads(tweet_str)
+                try:
+                    tweet = json.loads(tweet_str)
+                except json.decoder.JSONDecodeError:
+                    print("Decoder error raised while loading corpus",
+                          file=sys.stderr)
                 tweets.append(tweet)
         return tweets
