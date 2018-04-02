@@ -17,6 +17,10 @@ class WordCounter:
         for text in texts:
             words = text.split(self._separator)
             self._counter.update(words)
+        return self
+
+    def __getitem__(self, key):
+        return self._counter[key]
 
 
 if __name__ == "__main__":
