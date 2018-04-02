@@ -22,6 +22,9 @@ class WordCounter:
     def __getitem__(self, key):
         return self._counter[key]
 
+    def items(self):
+        return self._counter.items()
+
 
 if __name__ == "__main__":
     import sys
@@ -29,6 +32,6 @@ if __name__ == "__main__":
     counter = WordCounter()
     counter.fit((line.strip("\n") for line in sys.stdin))
 
-    for word, cnt in sorted(counter.counter.items(),
+    for word, cnt in sorted(counter.items(),
                             key=lambda x: x[1]):
         print(f"{word} {cnt}")
