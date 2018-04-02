@@ -8,10 +8,6 @@ class WordCounter:
         self._separator = separator
         self._counter = Counter()
 
-    @property
-    def counter(self):
-        return self._counter
-
     def fit(self, texts):
         self._counter = Counter()
         for text in texts:
