@@ -4,6 +4,38 @@
 
 import re
 import sys
+import mojimoji
+import emoji as emoji_
+
+
+def emoji2str(text):
+    """絵文字を文字列に変換する"""
+    return emoji_.demojize(text)
+
+
+def remove_emoji(text):
+    """絵文字を削除する"""
+    return "".join(c for c in text if c not in emoji_.UNICODE_EMOJI)
+
+
+def remove_kaomoji(text):
+    """顔文字を削除する"""
+    text_ = re.sub(r'[\(（][^\(\)（）]*[\)）][ノﾉ]?',
+                   '', text)
+    return text_
+
+
+def remove_space(text):
+    return re.sub(r"\s+", "", text)
+
+
+def remove_w(text):
+    return re.sub(r"[wｗ]+", "", text)
+
+
+def zen(text):
+    """半角を全角にする"""
+    return mojimoji.han_to_zen(text)
 
 
 def end_special_char(text):
@@ -24,7 +56,9 @@ def executor(transformer_str, column=0, separator="\t"):
         separator: column を区切るセパレータ
     """
     column_idx = column - 1
-    transformers = [end_special_char]
+    if type(transformer_str) == str:
+        transformer_str = [transformer_str]
+    transformers = [eval(code) for code in transformer_str]
     for line in sys.stdin:
         text = line.strip("\n")
         if column:
