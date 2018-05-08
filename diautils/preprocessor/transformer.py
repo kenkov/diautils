@@ -18,10 +18,16 @@ def remove_emoji(text):
     return "".join(c for c in text if c not in emoji_.UNICODE_EMOJI)
 
 
-def remove_kaomoji(text):
-    """顔文字を削除する"""
-    text_ = re.sub(r'[\(（][^\(\)（）]*[\)）][ノﾉ]?',
-                   '', text)
+def remove_symbol(text):
+    """顔文字等の特殊文字を削除する"""
+    # 括弧で囲まれた箇所を消す
+    text_ = re.sub(r'([ｍｏｂ]+)?[\(（【][^\(\)（）]*[\)）】]([ｍｏｂ]+)?', '', text)
+
+    # 特殊文字を消す
+    regex = re.compile(r'[＼ヾヽ٩\(（【^\(\)（）\)）】／ノﾉ۶＿ゞ＾´ω｀＝ᐛو・ω・｀＊˘￣▽△↑↓←→♪♡；∇꒳°ロ°∀ ＞＜ｏ☆〃□ 🏻ˊᗜˋ●○๑]')
+    text_ = text
+    while regex.search(text_):
+        text_ = regex.sub("", text_)
     return text_
 
 
@@ -30,7 +36,7 @@ def remove_space(text):
 
 
 def remove_w(text):
-    return re.sub(r"[wｗ]+", "", text)
+    return re.sub(r"[wｗ笑]+", "", text)
 
 
 def zen(text):
@@ -38,11 +44,31 @@ def zen(text):
     return mojimoji.han_to_zen(text)
 
 
-def end_special_char(text):
-    """文末の特殊文字を削除する"""
-    special_chars = ["！"]
-    text_ = re.sub(r'({})+$'.format("|".join(special_chars)),
-                   '', text)
+def normalize_punc(text):
+    """句読点を正規化する"""
+    text_ = text
+
+    # 「。」の代替となる文字は「。」に変換する
+    # ただし、文末の「。」は削除する
+    special_chars = r"[！ー－。…．・／〜～]"
+    special_chars_regex = re.compile(r'{}{}+'.format(special_chars,
+                                                     special_chars))
+    while special_chars_regex.search(text_):
+        text_ = special_chars_regex.sub("。", text_)
+    text_ = re.sub(special_chars, "。", text_)
+    text_ = re.sub(r'{}$'.format(special_chars), "", text_)
+
+    # 連続する「、」を一つにする
+    # 文末の「、」は削除
+    text_ = re.sub(r'、+', '、', text_)
+    text_ = re.sub(r'、$', "", text_)
+
+    # 連続する「。、」を「。」におきかえる
+    text_ = re.sub(r'[。、]+', '。', text_)
+
+    # 連続する「？」を含む句読点を「？」におきかえる
+    text_ = re.sub(r'[？。、]+', '？', text_)
+
     return text_
 
 
@@ -70,6 +96,7 @@ def executor(transformer_str, column=0, separator="\t"):
             texts[column_idx] = text
             text = separator.join(texts)
         print(text)
+
 
 if __name__ == "__main__":
     import fire
