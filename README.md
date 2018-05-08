@@ -16,8 +16,14 @@
 
 ### 前処理 `diautils.preprocessor.transformer`
 
+`diautils.preprocessor.transformer` は前処理を提供します。
+
     $ echo "今日は 晴れです 🤤" | python -m diautils.preprocessor.transformer zen,remove_emoji,remove_space
     今日は晴れです
+
+引数として処理を指定します。
+
+入力文字列が複数カラムの場合は `column` および `separator` で前処理を行うカラムを指定します。
 
 ### コーパス中の単語頻度を集計する
 
