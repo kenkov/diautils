@@ -6,6 +6,7 @@ import re
 import sys
 import mojimoji
 import emoji as emoji_
+import diautils.preprocessor.regex as regex_
 
 
 def emoji2str(text):
@@ -32,10 +33,12 @@ def remove_symbol(text):
 
 
 def remove_space(text):
+    """スペースを削除する"""
     return re.sub(r"\s+", "", text)
 
 
 def remove_w(text):
+    """笑表現を削除する"""
     return re.sub(r"[wｗ笑]+", "", text)
 
 
@@ -45,7 +48,15 @@ def zen(text):
 
 
 def normalize_punc(text):
-    """句読点を正規化する"""
+    """句読点を正規化する
+
+    正規化は次を行う
+    - 「。」の代替となる文字は「。」に変換
+    - 文末の「。」は削除する
+    - 連続する「、」を一つにする
+    - 連続する「。、」を「。」に置き換える
+    - 連続する「？」を含む句読点を「？」に置き換える
+    """
     text_ = text
 
     # 「。」の代替となる文字は「。」に変換する
@@ -72,20 +83,37 @@ def normalize_punc(text):
     return text_
 
 
-def executor(transformer_str, column=0, separator="\t"):
-    """python-fire のエントリポイント
+def remove_url(text):
+    return regex_.url.sub("", text)
+
+
+def remove_mention(text):
+    return regex_.mention.sub("", text)
+
+
+def remove_head_mention(text):
+    return regex_.head_mention.sub("", text)
+
+
+def remove_tag(text):
+    return regex_.tag.sub("", text)
+
+
+def executor(stream, transformer_str, column=0, separator="\t"):
+    """エントリポイント
 
     Args:
-        transformer_str: 変換に使用する関数名。複数指定する場合は「,」で区切る
+        stream: 変換する文字列を含むストリーム
+        transformer_str (str): 変換に使用する関数名。複数指定する場合は「,」で区切る
             例: end_special_char,url
-        column: 変換対象のカラム番号。絡む番号は 1 からはじまる
-        separator: column を区切るセパレータ
+        column (int): 変換対象のカラム番号。絡む番号は 1 からはじまる
+        separator (str): column を区切るセパレータ
     """
     column_idx = column - 1
     if type(transformer_str) == str:
         transformer_str = [transformer_str]
     transformers = [eval(code) for code in transformer_str]
-    for line in sys.stdin:
+    for line in stream:
         text = line.strip("\n")
         if column:
             texts = text.split(separator)
@@ -95,10 +123,25 @@ def executor(transformer_str, column=0, separator="\t"):
         if column:
             texts[column_idx] = text
             text = separator.join(texts)
-        print(text)
+        yield text
+
+
+def commandline_executor(transformer_str, column=0, separator="\t"):
+    """python-fire のエントリポイント
+
+    Args:
+        transformer_str: 変換に使用する関数名。複数指定する場合は「,」で区切る
+            例: end_special_char,url
+        column: 変換対象のカラム番号。絡む番号は 1 からはじまる
+        separator: column を区切るセパレータ
+    """
+    return executor(sys.stdin,
+                    transformer_str,
+                    column=column,
+                    separator=separator)
 
 
 if __name__ == "__main__":
     import fire
 
-    fire.Fire(executor)
+    fire.Fire(commandline_executor)
