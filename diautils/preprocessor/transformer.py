@@ -25,21 +25,20 @@ def remove_symbol(text):
     text_ = re.sub(r'([ｍｏｂ]+)?[\(（【][^\(\)（）]*[\)）】]([ｍｏｂ]+)?', '', text)
 
     # 特殊文字を消す
-    regex = re.compile(r'[＼ヾヽ٩\(（【^\(\)（）\)）】／ノﾉ۶＿ゞ＾´ω｀＝ᐛو・ω・｀＊˘￣▽△↑↓←→♪♡；∇꒳°ロ°∀ ＞＜ｏ☆〃□ 🏻ˊᗜˋ●○๑]')
+    regex = re.compile(r'[＼ヾヽ٩\(（【^\(\)（）\)）】／ノﾉ۶＿ゞ＾´ω｀＝ᐛو・ω・｀＊˘￣▽△↑↓←→♪♡；∇꒳°ロ°∀ ＞＜ｏ☆〃□ 🏻ˊᗜˋ●○๑」∠«‘»◜◝（＾＾）╹◡╹⁰▿⁰−≧≦﹃º]')
     text_ = text
     while regex.search(text_):
-        text_ = regex.sub("", text_)
+        text_ = regex.sub("", text_) 
+
+    # 笑表現を削除
+    text_ = re.sub(r"[wｗ笑]+", "", text_)
+
     return text_
 
 
 def remove_space(text):
     """スペースを削除する"""
     return re.sub(r"\s+", "", text)
-
-
-def remove_w(text):
-    """笑表現を削除する"""
-    return re.sub(r"[wｗ笑]+", "", text)
 
 
 def zen(text):
@@ -78,7 +77,7 @@ def normalize_punc(text):
     text_ = re.sub(r'[。、]+', '。', text_)
 
     # 連続する「？」を含む句読点を「？」におきかえる
-    text_ = re.sub(r'[？。、]+', '？', text_)
+    text_ = re.sub(r'[？。、]*？[？。、]*', '？', text_)
 
     return text_
 
@@ -99,13 +98,15 @@ def remove_tag(text):
     return regex_.tag.sub("", text)
 
 
-def executor(stream, transformer_str, column=0, separator="\t"):
+def executor(stream, transformer_str, column=0, separator="\t",
+             debug=False):
     """エントリポイント
 
     Args:
         stream: 変換する文字列を含むストリーム
-        transformer_str (str): 変換に使用する関数名。複数指定する場合は「,」で区切る
-            例: end_special_char,url
+        transformer_str (str or tuple): 変換に使用する関数名。複数指定する場合はタプルで指定する
+            例: "url"
+            例: ("end_special_char", "url")
         column (int): 変換対象のカラム番号。絡む番号は 1 からはじまる
         separator (str): column を区切るセパレータ
     """
@@ -115,6 +116,7 @@ def executor(stream, transformer_str, column=0, separator="\t"):
     transformers = [eval(code) for code in transformer_str]
     for line in stream:
         text = line.strip("\n")
+        orig_text = text
         if column:
             texts = text.split(separator)
             text = texts[column_idx]
@@ -123,10 +125,33 @@ def executor(stream, transformer_str, column=0, separator="\t"):
         if column:
             texts[column_idx] = text
             text = separator.join(texts)
+        if debug:
+            print("DEBUG: from: {}".format(orig_text))
+            print("DEBUG: to  : {}".format(text))
         yield text
 
 
-def commandline_executor(transformer_str, column=0, separator="\t"):
+class Transformer:
+    def __init__(self, transformer_str,
+                 column=0, separator="\t",
+                 debug=False):
+        self.transformer_str = transformer_str
+        self.column = column
+        self.separator = separator
+
+    def transform(self, texts):
+        """
+        Args:
+            texts (List[str]): 変換するテキストのリスト
+        """
+        return executor(texts, self.transformer_str,
+                        column=self.column,
+                        separator=self.separator,
+                        debug=False)
+
+
+def commandline_executor(transformer_str, column=0, separator="\t",
+                         debug=False):
     """python-fire のエントリポイント
 
     Args:
@@ -138,7 +163,8 @@ def commandline_executor(transformer_str, column=0, separator="\t"):
     return executor(sys.stdin,
                     transformer_str,
                     column=column,
-                    separator=separator)
+                    separator=separator,
+                    debug=debug)
 
 
 if __name__ == "__main__":
