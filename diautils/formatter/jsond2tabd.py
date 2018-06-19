@@ -25,8 +25,8 @@ def convert_jsond2tabd(json_str):
 
 if __name__ == '__main__':
     import sys
-    import json
 
     for line in sys.stdin:
-        replies = [tweet["text"].replace("\n", " ") for tweet in json.loads(line)]
-        print("\t".join(replies))
+        line = line.strip("\n")
+        tabd = convert_jsond2tabd(line)
+        print(tabd)
