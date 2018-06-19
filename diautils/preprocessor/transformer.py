@@ -22,13 +22,18 @@ def remove_emoji(text):
 def remove_symbol(text):
     """顔文字等の特殊文字を削除する"""
     # 括弧で囲まれた箇所を消す
-    text_ = re.sub(r'([ｍｏｂ]+)?[\(（【][^\(\)（）]*[\)）】]([ｍｏｂ]+)?', '', text)
+    text_ = re.sub(r'([ｍｏｂ]+)?[\(（【][^\(\)（）]*[\)）】]([ｍｏｂノ]+)?', '', text)
 
     # 特殊文字を消す
-    regex = re.compile(r'[＼ヾヽ٩\(（【^\(\)（）\)）】／ノﾉ۶＿ゞ＾´ω｀＝ᐛو・ω・｀＊˘￣▽△↑↓←→♪♡；∇꒳°ロ°∀ ＞＜ｏ☆〃□ 🏻ˊᗜˋ●○๑」∠«‘»◜◝（＾＾）╹◡╹⁰▿⁰−≧≦﹃º]')
+    regex = re.compile(r'[＼ヾヽ٩\(（【^\(\)（）\)）】／ノﾉ۶＿ゞ＾´ω｀＝ᐛو・ω・｀＊˘￣▽△↑↓←→♪♡；∇꒳°°∀ ＞＜ｏ☆〃□ 🏻ˊᗜˋ●○๑∠«‘»◜◝（＾＾）╹◡╹⁰▿⁰−≧≦﹃º⊙੭˙’⌒︶ᵕゝ：≡；ε゜чд]')
     text_ = text
     while regex.search(text_):
         text_ = regex.sub("", text_) 
+
+    # &lt &gt を削除
+
+    text_ = text_.replace("＆ｌｔ", "")
+    text_ = text_.replace("＆ｇｔ", "")
 
     # 笑表現を削除
     text_ = re.sub(r"[wｗ笑]+", "", text_)
@@ -60,7 +65,7 @@ def normalize_punc(text):
 
     # 「。」の代替となる文字は「。」に変換する
     # ただし、文末の「。」は削除する
-    special_chars = r"[！ー－。…．・／〜～]"
+    special_chars = r"[！。…．・／]"
     special_chars_regex = re.compile(r'{}{}+'.format(special_chars,
                                                      special_chars))
     while special_chars_regex.search(text_):
@@ -68,13 +73,19 @@ def normalize_punc(text):
     text_ = re.sub(special_chars, "。", text_)
     text_ = re.sub(r'{}$'.format(special_chars), "", text_)
 
+    # 連続する伸ばし表現を一つにする
+    text_ = re.sub(r'ー+', 'ー', text_)  # 全角ひらがな
+    text_ = re.sub(r'－+', '－', text_)  # 全角カタカナ
+    text_ = re.sub(r'〜+', '〜', text_)  # 全角ひらがな
+    text_ = re.sub(r'～+', '～', text_)  # 全角カタカナ
+
     # 連続する「、」を一つにする
     # 文末の「、」は削除
     text_ = re.sub(r'、+', '、', text_)
     text_ = re.sub(r'、$', "", text_)
 
     # 連続する「。、」を「。」におきかえる
-    text_ = re.sub(r'[。、]+', '。', text_)
+    text_ = re.sub(r'[。、]+。[。、]+', '。', text_)
 
     # 連続する「？」を含む句読点を「？」におきかえる
     text_ = re.sub(r'[？。、]*？[？。、]*', '？', text_)
