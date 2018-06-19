@@ -1,6 +1,6 @@
 # diautils
 
-対話システム用のツールを提供するパッケージです。
+diautils は対話テキストデータの変換、解析ツールです。
 
 ## インストール
 
@@ -12,7 +12,22 @@
 
     $ pip install emoji==0.5.0 fire==0.1.3
 
+## フォーマット
+
+diautils では、3 つの対話テキストデータフォーマットを取り扱います。
+
+| フォーマット名 | 説明 | 例 |
+| --- | --- | --- |
+| jsond | 対話を、`{"text": "発話"}` という形式の発話のリストを保持する JSON で表す | [{"text": "おはよう"}, {"text": "おはようございます"}, {"text": "元気気？"} |
+| tabd | 対話を、タブ区切りの発話のリストで表す | "おはよう\tおはようございます\t元気？" |
+| paird | 入力発話と応答発話のペアの tabd 形式の対話データ | "おはよう\tおはようございます\nおはようございます\n元気？ |
+
 ## 使い方
+
+### フォーマット変換
+
+- `diautils.formatter.jsond2tabd` で jsond 形式から tabd 形式へ変換します。
+- `diautils.formatter.tabd2paird` で tabd 形式から paird 形式へ変換します。
 
 ### 前処理 `diautils.preprocessor.transformer`
 
