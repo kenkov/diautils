@@ -10,7 +10,7 @@ diautils は対話テキストデータの変換、解析ツールです。
 
 依存ライブラリのインストール
 
-    $ pip install emoji==0.5.0 fire==0.1.3
+    $ pip install emoji==0.5.0 fire==0.1.3 mojimoji==0.0.8
 
 ## フォーマット
 
