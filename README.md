@@ -40,6 +40,18 @@ diautils では、3 つの対話テキストデータフォーマットを取り
 
 入力文字列が複数カラムの場合は `column` および `separator` で前処理を行うカラムを指定します。
 
+### 前処理 `diautils.preprocessor.filter`
+
+`diautils.preprocessor.filter` は、不要な文を取り除きます。
+
+    $ echo "今日は晴れです" | python -m diautils.preprocessor.filter url
+    今日は晴れです
+    $ echo "今日は晴れです http://hoge/fuga" | python -m diautils.preprocessor.filter url
+
+引数として処理を指定します。
+
+入力文字列が複数カラムの場合は `column` および `separator` で前処理を行うカラムを指定します。
+
 ### コーパス中の単語頻度を集計する
 
     $ echo "hoge fuga\nfuga hoge geko" | python -m diautils.stats.wordcount
