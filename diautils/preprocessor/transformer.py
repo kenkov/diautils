@@ -109,7 +109,7 @@ def remove_tag(text):
     return regex_.tag.sub("", text)
 
 
-def executor(stream, transformer_str, column=0, separator="\t",
+def executor(stream, transformer_str, column=None, separator="\t",
              debug=False):
     """エントリポイント
 
@@ -121,25 +121,37 @@ def executor(stream, transformer_str, column=0, separator="\t",
         column (int): 変換対象のカラム番号。絡む番号は 1 からはじまる
         separator (str): column を区切るセパレータ
     """
-    column_idx = column - 1
+    if column:
+        if type(column) == int:
+            column_idxes = [column]
+        else:
+            column_idxes = column
     if type(transformer_str) == str:
         transformer_str = [transformer_str]
+
     transformers = [eval(code) for code in transformer_str]
     for line in stream:
         text = line.strip("\n")
-        orig_text = text
         if column:
-            texts = text.split(separator)
-            text = texts[column_idx]
-        for transformer in transformers:
-            text = transformer(text)
-        if column:
-            texts[column_idx] = text
-            text = separator.join(texts)
+            res = text.split(separator)
+        else:
+            res = [text]
+
+        transformered = []
+        for i, text_one in enumerate(res):
+            if column:
+                if i in column_idxes:
+                    for transformer in transformers:
+                        text_one = transformer(text_one)
+            else:
+                for transformer in transformers:
+                    text_one = transformer(text_one)
+            transformered.append(text_one)
+        ret_text = separator.join(transformered)
         if debug:
-            print("DEBUG: from: {}".format(orig_text))
-            print("DEBUG: to  : {}".format(text))
-        yield text
+            print("DEBUG: from: {}".format(text))
+            print("DEBUG: to  : {}".format(ret_text))
+        yield ret_text
 
 
 class Transformer:
