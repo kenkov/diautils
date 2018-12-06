@@ -7,6 +7,9 @@ from distutils.core import setup
 setup(
     name="diautils",
     packages=["diautils", "diautils.preprocessor"],
+    install_requires=[
+        "mojimoji==0.0.8",
+        ],
     version="0.1.0",
     author="kenkov",
     author_email="kenkovtan@gmail.com",
