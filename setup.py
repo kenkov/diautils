@@ -6,7 +6,7 @@ from distutils.core import setup
 
 setup(
     name="diautils",
-    packages=["diautils"],
+    packages=["diautils", "diautils.preprocessor"],
     version="0.1.0",
     author="kenkov",
     author_email="kenkovtan@gmail.com",
