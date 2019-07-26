@@ -4,13 +4,9 @@ diautils は対話テキストデータの変換、解析ツールです。
 
 ## インストール
 
-    $ git clone https://github.com/kenkov/diautils
-    $ cd diautils
-    $ pip install ./
-
-依存ライブラリのインストール
-
-    $ pip install emoji==0.5.0 fire==0.1.3 mojimoji==0.0.8
+```sh
+pip install git+https://github.com/kenkov/diautils@0.1.1
+```
 
 ## フォーマット
 
